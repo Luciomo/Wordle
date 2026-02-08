@@ -19,6 +19,7 @@
     --key-text: #FFFFFF;
     --absent-bg: #3a3a3c;
     --absent-text: #818384;
+    --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 body.light-mode {
@@ -42,9 +43,16 @@ body {
     background-position: center;
     background-color: var(--bg-color);
     color: var(--text-color);
-    overflow-y: scroll;
+    overflow: hidden;
+    height: 100vh;
     font-family: 'Roboto', sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
+    zoom: 0.7;
+}
+
+/* Melhorar resposta ao toque em botões */
+button {
+    touch-action: manipulation;
 }
 
 /* Customizar scrollbar */
@@ -325,6 +333,10 @@ main {
 }
 
 /* RESPONSIVE DESIGN */
+@media (max-height: 700px) {
+    main { gap: 10px; padding: 10px; }
+}
+
 @media (max-width: 768px) {
     .board-game {
         grid-template-columns: repeat(5, 50px);
@@ -369,31 +381,39 @@ main {
         grid-template-rows: repeat(6, 40px);
         gap: 6px;
     }
+    
+    /* Ajuste do container principal para mobile */
+    main {
+        gap: 15px;
+        padding: 10px;
+        justify-content: flex-start;
+        min-height: 100vh;
+    }
 
     .keyboard {
-        padding: 8px;
+        padding: 5px;
+        width: 100%;
+        padding-bottom: var(--safe-area-bottom);
     }
 
     .keyboard .row {
-        gap: 3px;
-        max-width: 360px;
+        gap: 2px;
+        max-width: 100%; /* Ocupa toda a largura disponível */
     }
 
+    /* Teclas fluidas para caber em telas de 320px */
     .keyboard .letter,
     .keyboard .action {
-        min-width: 28px; /* scaled from 42 */
-        height: 40px;
-        font-size: 11px;
-        padding: 0 4px;
+        min-width: 0; /* Permite encolher */
+        flex: 1;      /* Distribui espaço igualmente */
+        height: 45px; /* Altura de toque confortável */
+        font-size: 12px;
+        padding: 0;
     }
 
     .keyboard .letter-ENTER {
-        min-width: 56px; /* 2 * 28 */
-    }
-
-    main {
-        gap: 20px;
-        padding: 15px 6px;
+        flex: 1.5; /* Enter um pouco maior */
+        font-size: 10px;
     }
 
     .header {

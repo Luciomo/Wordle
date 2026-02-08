@@ -1,0 +1,12 @@
+{
+  "name": "wordle-exemplo",
+  "version": "1.0.0",
+  "description": "Wordle example - tests for pickRandomWord",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

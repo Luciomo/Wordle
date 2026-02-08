@@ -1,0 +1,417 @@
+/* ============================================
+   WORDLE - REFACTORED WITH FLEXBOX & GRID
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-color: #14161C;
+    --text-color: #FFFFFF;
+    --header-bg: rgba(20, 22, 28, 0.8);
+    --board-bg: rgba(20, 22, 28, 0.7);
+    --letter-bg: #14161C;
+    --letter-border: #585858;
+    --key-bg: #818384;
+    --key-text: #FFFFFF;
+    --absent-bg: #3a3a3c;
+    --absent-text: #818384;
+}
+
+body.light-mode {
+    --bg-color: #FFFFFF;
+    --text-color: #121213;
+    --header-bg: rgba(255, 255, 255, 0.9);
+    --board-bg: rgba(255, 255, 255, 0.5);
+    --letter-bg: #FFFFFF;
+    --letter-border: #d3d6da;
+    --key-bg: #d3d6da;
+    --key-text: #121213;
+    --absent-bg: #787c7e;
+    --absent-text: #FFFFFF;
+}
+
+/* BODY & GENERAL STYLES */
+body {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow-y: scroll;
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Customizar scrollbar */
+body::-webkit-scrollbar {
+    width: 12px;
+}
+
+body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #F9FF00;
+    border-radius: 6px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: #ffff33;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    background-color: var(--header-bg);
+    transition: background-color 0.3s ease;
+}
+
+header {
+    width: 100%;
+    max-width: 1346px;
+}
+
+.logo {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    height: 70px;
+}
+
+.logo img {
+    height: 60px;
+    width: auto;
+}
+
+/* MAIN CONTAINER */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+    max-width: 1346px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   BOARD - GAME SECTION (USING GRID)
+   ============================================ */
+
+.board-game {
+    display: grid;
+    grid-template-columns: repeat(5, 62px);
+    grid-template-rows: repeat(6, 62px);
+    gap: 10px;
+    padding: 20px;
+    background-color: var(--board-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease;
+}
+
+.board-game .row {
+    display: contents;
+}
+
+.board-game .letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--letter-bg);
+    border: 2px solid var(--letter-border);
+    border-radius: 4px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.board-game .letter:hover {
+    border-color: #818384;
+}
+
+/* animação para tentativa inválida (palavra não existe) */
+.board-game .invalid {
+    animation: shake 0.6s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+    100% { transform: translateX(0); }
+}
+
+/* animação ao resetar o jogo */
+.board-game .letter.reset-animation {
+    animation: resetPulse 0.5s ease-in-out;
+}
+
+@keyframes resetPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.9); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Mensagem de feedback acima do tabuleiro */
+.message-toast {
+    display: inline-block;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.03);
+    color: #FFFFFF;
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.message-toast.error {
+    border-color: #ff4d4f; /* vermelho */
+}
+
+/* Botão Resetar */
+.reset-btn {
+    background-color: green;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px auto;
+    display: block;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.reset-btn:hover {
+    background-color: #006400;
+}
+
+/* Botão Tema (Dark/White) */
+.theme-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 1000;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================
+   KEYBOARD - USING FLEXBOX
+   ============================================ */
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* tighter gap for pixel match */
+    padding: 10px 8px;
+    background-color: var(--board-bg);
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28);
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.keyboard .row {
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* match inter-key spacing */
+    width: 100%;
+    max-width: 465px; /* 10*42 + 9*5 = 465 */
+}
+
+.keyboard .row:first-child {
+    margin-left: 0;
+}
+
+/* offsets tuned to match visual keyboard spacing (half key and full key) */
+.keyboard .row:nth-child(2) {
+    margin-left: 0px; /* -3px final adjustment requested */
+}
+
+.keyboard .row:nth-child(3) {
+    margin-left: 0px; /* -3px final adjustment requested */
+}
+
+/* KEYBOARD BUTTONS */
+.keyboard .letter,
+.keyboard .action {
+    min-width: 42px; /* key width */
+    height: 58px;
+    padding: 0 6px;
+    background-color: var(--key-bg);
+    border: none;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--key-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s ease;
+}
+
+.keyboard .letter:hover,
+.keyboard .action:hover {
+    background-color: #9f9f9f;
+    transform: translateY(-1px);
+}
+
+.keyboard .letter:active,
+.keyboard .action:active {
+    background-color: #bfbfbf;
+    transform: translateY(0);
+}
+
+/* ENTER BUTTON - exactly 2 keys wide */
+.keyboard .letter-ENTER {
+    min-width: 84px; /* 2 * 42 */
+}
+
+/* ERASE/BACKSPACE BUTTON */
+.keyboard .action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    padding: 0;
+}
+
+.keyboard .action img {
+    width: 24px;
+    height: 24px;
+}
+
+/* LETTER STATES - CORRECT/PRESENT/ABSENT */
+.letter.correct {
+    background-color: #6aaa64;
+    border-color: #6aaa64;
+    color: #FFFFFF;
+}
+
+.letter.present {
+    background-color: #b59f3b;
+    border-color: #b59f3b;
+    color: #FFFFFF;
+}
+
+.letter.absent {
+    background-color: var(--absent-bg);
+    border-color: var(--absent-bg);
+    color: var(--absent-text);
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .board-game {
+        grid-template-columns: repeat(5, 50px);
+        grid-template-rows: repeat(6, 50px);
+        gap: 8px;
+    }
+
+    .keyboard {
+        padding: 12px;
+    }
+
+    .keyboard .row {
+        gap: 4px;
+        max-width: 420px; /* scale to fit smaller screens */
+    }
+
+    .keyboard .letter,
+    .keyboard .action {
+        min-width: 36px; /* scaled from 42 */
+        height: 50px;
+        font-size: 13px;
+        padding: 0 6px;
+    }
+
+    .keyboard .letter-ENTER {
+        min-width: 72px; /* 2 * 36 */
+    }
+
+    main {
+        gap: 28px;
+        padding: 18px 10px;
+    }
+
+    .logo img {
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .board-game {
+        grid-template-columns: repeat(5, 40px);
+        grid-template-rows: repeat(6, 40px);
+        gap: 6px;
+    }
+
+    .keyboard {
+        padding: 8px;
+    }
+
+    .keyboard .row {
+        gap: 3px;
+        max-width: 360px;
+    }
+
+    .keyboard .letter,
+    .keyboard .action {
+        min-width: 28px; /* scaled from 42 */
+        height: 40px;
+        font-size: 11px;
+        padding: 0 4px;
+    }
+
+    .keyboard .letter-ENTER {
+        min-width: 56px; /* 2 * 28 */
+    }
+
+    main {
+        gap: 20px;
+        padding: 15px 6px;
+    }
+
+    .header {
+        padding: 10px 0;
+    }
+
+    .logo img {
+        height: 40px;
+    }
+}
+
+/* UTILITY CLASSES */
+.hidden {
+    display: none !important;
+}
+
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}

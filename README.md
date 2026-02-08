@@ -2,6 +2,10 @@
 
 Pequima implementação do jogo Wordle em português, criada como exercício do curso. O jogo é cliente-side (HTML/CSS/JS) e fornece uma experiência semelhante ao Wordle: o jogador tem 6 tentativas para adivinhar uma palavra secreta de 5 letras.
 
+**Publicação**
+
+O jogo está publicado no Netlify e pode ser acessado em: [https://guesswordle.netlify.app/](https://guesswordle.netlify.app/)
+
 **Tecnologias**
 
 - HTML5 (interface)

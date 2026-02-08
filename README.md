@@ -62,10 +62,6 @@ npm test
 
 Pull requests são bem-vindos. Para melhorias possíveis: adicionar dicionário completo, persistência do placar, animações adicionais e acessibilidade.
 
----
-
-Se quiser, eu também posso adicionar um arquivo `.gitignore`, um `package.json` com scripts úteis, ou um pequeno `CONTRIBUTING.md`.
-
 **Licença**
 
 Este projeto está sob a licença MIT.

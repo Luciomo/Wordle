@@ -65,3 +65,7 @@ Pull requests são bem-vindos. Para melhorias possíveis: adicionar dicionário 
 ---
 
 Se quiser, eu também posso adicionar um arquivo `.gitignore`, um `package.json` com scripts úteis, ou um pequeno `CONTRIBUTING.md`.
+
+**Licença**
+
+Este projeto está sob a licença MIT.

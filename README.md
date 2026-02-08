@@ -1,5 +1,7 @@
 # Wordle — Projeto de Exemplo (Alura)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/43b02bbe-c7e8-4f07-86f5-7b200ebb6100/deploy-status)](https://app.netlify.com/sites/guesswordle/deploys)
+
 Pequima implementação do jogo Wordle em português, criada como exercício do curso. O jogo é cliente-side (HTML/CSS/JS) e fornece uma experiência semelhante ao Wordle: o jogador tem 6 tentativas para adivinhar uma palavra secreta de 5 letras.
 
 **Publicação**

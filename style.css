@@ -439,3 +439,41 @@ main {
     cursor: not-allowed;
     pointer-events: none;
 }
+
+/* FOOTER LEGEND */
+.game-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: var(--header-bg);
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.legend-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.legend-box.correct {
+    background-color: #6aaa64;
+}
+
+.legend-box.present {
+    background-color: #b59f3b;
+}
+
+.legend-box.absent {
+    background-color: var(--absent-bg);
+}

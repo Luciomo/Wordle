@@ -7,7 +7,7 @@ const WORD_BANK = [
 	'LIVRO',
 	'MAÇÃ',
 	'GATO',
-	'CÃO',
+	'PEDRA',
 	'LIVRO',
 	'PORTA'
 ];
@@ -56,10 +56,15 @@ function integrateBoardLogic() {
 	const boardCells = Array.from(document.querySelectorAll('.board-game .letter'));
 	const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
 
+    // Container para os botões
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'controls-container';
+
 	// Criação do botão Resetar
 	const resetBtn = document.createElement('button');
 	resetBtn.textContent = 'Jogar novamente';
 	resetBtn.classList.add('reset-btn');
+    controlsContainer.appendChild(resetBtn);
 
 	// Criação do botão de Tema (Dark/White)
 	const themeBtn = document.createElement('button');
@@ -72,9 +77,36 @@ function integrateBoardLogic() {
 		document.body.classList.toggle('light-mode');
 	});
 
+    // Criação do botão de Ajuda (Inline)
+    const helpBtn = document.createElement('button');
+    helpBtn.textContent = '?';
+    helpBtn.className = 'help-btn-inline';
+    helpBtn.title = 'Como jogar';
+    controlsContainer.appendChild(helpBtn);
+
+    // Lógica do Modal
+    const modal = document.getElementById('help-modal');
+    const closeBtn = document.querySelector('.close-modal');
+
+    if (modal && closeBtn) {
+        helpBtn.addEventListener('click', () => {
+            modal.classList.add('open');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.classList.remove('open');
+            }
+        });
+    }
+
 	const keyboardContainer = document.querySelector('.keyboard');
 	if (keyboardContainer && keyboardContainer.parentNode) {
-		keyboardContainer.parentNode.insertBefore(resetBtn, keyboardContainer.nextSibling);
+		keyboardContainer.parentNode.insertBefore(controlsContainer, keyboardContainer.nextSibling);
 	}
 
 	resetBtn.addEventListener('click', () => {

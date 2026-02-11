@@ -1,16 +1,23 @@
 // Banco de palavras (word bank) - adicione ou modifique conforme necessário
-const WORD_BANK = [
-	'AMIGO',
-	'CASA',
-	'CARRO',
-	'PLANO',
-	'LIVRO',
-	'MAÇÃ',
-	'GATO',
-	'PEDRA',
-	'LIVRO',
-	'PORTA'
-];
+let WORD_BANK = [];
+
+/**
+ * Carrega a lista de palavras do arquivo JSON.
+ */
+async function loadWords() {
+	try {
+		const response = await fetch('words.json');
+		const data = await response.json();
+		// Normaliza palavras: remove acentos e substitui Ç por C
+		WORD_BANK = data.map(word => 
+			word.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+		);
+	} catch (error) {
+		console.error('Erro ao carregar palavras:', error);
+		// Fallback caso o fetch falhe
+		WORD_BANK = ['TERMO', 'TESTE'];
+	}
+}
 
 /**
  * Retorna uma palavra aleatória a partir do `WORD_BANK` usando Math.random() e Math.floor().
@@ -314,7 +321,10 @@ function integrateBoardLogic() {
 
 	// conecta teclado físico
 	function handleKeydown(e) {
-		const key = e.key.toUpperCase();
+		let key = e.key.toUpperCase();
+		// Normaliza entrada (ex: Ç -> C, Á -> A)
+		key = key.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+
 		if (key === 'BACKSPACE') {
 			e.preventDefault();
 			handleBackspace();
@@ -339,7 +349,8 @@ function integrateBoardLogic() {
 
 // Inicializa automaticamente quando o DOM estiver pronto
 if (typeof document !== 'undefined') {
-	document.addEventListener('DOMContentLoaded', () => {
+	document.addEventListener('DOMContentLoaded', async () => {
+		await loadWords();
 		initGame();
 		integrateBoardLogic();
 	});

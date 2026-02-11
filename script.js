@@ -81,7 +81,7 @@ function integrateBoardLogic() {
     const helpBtn = document.createElement('button');
     helpBtn.textContent = '?';
     helpBtn.className = 'help-btn-inline';
-    helpBtn.title = 'Como jogar';
+    helpBtn.title = 'Como jogar?';
     controlsContainer.appendChild(helpBtn);
 
     // Lógica do Modal

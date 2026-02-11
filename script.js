@@ -276,8 +276,17 @@ function integrateBoardLogic() {
 
 		// Verifica se jogador acertou
 		if (guess === SECRET) {
+			if (typeof confetti === 'function') {
+				confetti({
+					particleCount: 150,
+					spread: 70,
+					origin: { y: 0.6 }
+				});
+			}
 			showMessage('🎉 Parabéns! Você acertou!', 'success');
-			alert('🎉 Parabéns! Você acertou!');
+			setTimeout(() => {
+				alert('🎉 Parabéns! Você acertou!');
+			}, 300);
 			console.debug(`[Game Won] Acertou em ${gameState.currentRow + 1} tentativa(s)`);
 			// Desabilitar input após vitória
 			keyButtons.forEach(btn => btn.disabled = true);

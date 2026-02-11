@@ -110,6 +110,8 @@ function integrateBoardLogic() {
 	}
 
 	resetBtn.addEventListener('click', () => {
+		if (!confirm('Tem certeza que deseja reiniciar o jogo?')) return;
+
 		gameState.currentRow = 0;
 		gameState.currentCol = 0;
 		SECRET = initGame();

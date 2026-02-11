@@ -569,3 +569,19 @@ main {
     border: 2px solid var(--letter-border);
     background-color: var(--letter-bg);
 }
+
+.examples .letter.correct {
+    background-color: #6aaa64;
+    border-color: #6aaa64;
+}
+
+.examples .letter.present {
+    background-color: #b59f3b;
+    border-color: #b59f3b;
+}
+
+.examples .letter.absent {
+    background-color: var(--absent-bg);
+    border-color: var(--absent-bg);
+    color: var(--absent-text);
+}

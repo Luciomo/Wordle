@@ -585,3 +585,28 @@ main {
     border-color: var(--absent-bg);
     color: var(--absent-text);
 }
+
+/* Estilos para o Modal de Vitória */
+#win-modal .modal-content {
+    text-align: center;
+}
+
+#win-modal h2 {
+    margin-bottom: 20px;
+}
+
+#win-modal-reset-btn {
+    background-color: #6aaa64; /* Verde de sucesso */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#win-modal-reset-btn:hover {
+    background-color: #5a9a54;
+}

@@ -43,19 +43,85 @@ function initGame() {
 	return secret;
 }
 
-/**
- * Integra a palavra secreta com a lógica do tabuleiro e adiciona validação de dicionário.
- */
-let gameState = {
-	currentRow: 0,
-	currentCol: 0
-};
-
 function integrateBoardLogic() {
 	if (typeof document === 'undefined') return;
 
 	if (!window.SECRET_WORD) initGame();
 	let SECRET = (window.SECRET_WORD || '').toUpperCase();
+
+    // Estado do jogo e Timer
+    let gameState = { currentRow: 0, currentCol: 0 };
+    let timerInterval;
+    let remainingTime = 180; // 3 minutos
+    let totalScore = parseInt(localStorage.getItem('wordleScore') || '0', 10);
+    let currentRoundScore = 0;
+
+    function startTimer() {
+        const timerElement = document.getElementById('timer-container');
+        if (timerInterval) clearInterval(timerInterval);
+        
+        const updateDisplay = () => {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            if (timerElement) {
+                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+        };
+        updateDisplay();
+
+        timerInterval = setInterval(() => {
+            remainingTime--;
+            updateDisplay();
+            
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                showMessage(`Game Over! O tempo acabou. A palavra era: ${SECRET}`, 'error');
+                const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
+                keyButtons.forEach(btn => {
+                    if (!btn.classList.contains('reset-btn')) btn.disabled = true;
+                });
+                document.removeEventListener('keydown', handleKeydown);
+            }
+        }, 1000);
+    }
+
+    function resetGame() {
+        gameState.currentRow = 0;
+        gameState.currentCol = 0;
+        currentRoundScore = 0;
+        
+        const boardCells = Array.from(document.querySelectorAll('.board-game .letter'));
+        const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
+
+        SECRET = initGame();
+        
+        // Limpar tabuleiro e teclado
+        boardCells.forEach(cell => {
+            cell.textContent = '';
+            cell.removeAttribute('data-letter');
+            cell.classList.remove('correct', 'present', 'absent');
+            cell.classList.add('reset-animation');
+            setTimeout(() => cell.classList.remove('reset-animation'), 500);
+        });
+        keyButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('correct', 'present', 'absent');
+        });
+        const msg = document.querySelector('.message-toast');
+        if (msg) msg.remove();
+        
+        const resetBtn = document.querySelector('.reset-btn');
+        if (resetBtn) resetBtn.disabled = false;
+        
+        remainingTime = 180;
+        startTimer();
+        
+        document.removeEventListener('keydown', handleKeydown);
+        document.addEventListener('keydown', handleKeydown);
+        console.debug('[Game Reset] Novo jogo iniciado');
+    }
+
+    startTimer();
 
 	const MAX_ROWS = 6;
 	const MAX_COLS = 5;
@@ -66,6 +132,13 @@ function integrateBoardLogic() {
     // Container para os botões
     const controlsContainer = document.createElement('div');
     controlsContainer.className = 'controls-container';
+
+    // Display de Pontuação
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'score-display';
+    scoreDisplay.textContent = `Pts: ${totalScore}`;
+    scoreDisplay.style.cssText = 'font-weight: bold; font-size: 1.1rem; margin-right: 10px;';
+    controlsContainer.appendChild(scoreDisplay);
 
 	// Criação do botão Resetar
 	const resetBtn = document.createElement('button');
@@ -111,6 +184,14 @@ function integrateBoardLogic() {
         });
     }
 
+    const winModal = document.getElementById('win-modal');
+    const winModalResetBtn = document.getElementById('win-modal-reset-btn');
+
+    winModalResetBtn.addEventListener('click', () => {
+        winModal.classList.remove('open');
+        resetGame();
+    });
+
 	const keyboardContainer = document.querySelector('.keyboard');
 	if (keyboardContainer && keyboardContainer.parentNode) {
 		keyboardContainer.parentNode.insertBefore(controlsContainer, keyboardContainer.nextSibling);
@@ -118,28 +199,7 @@ function integrateBoardLogic() {
 
 	resetBtn.addEventListener('click', () => {
 		if (!confirm('Tem certeza que deseja reiniciar o jogo?')) return;
-
-		gameState.currentRow = 0;
-		gameState.currentCol = 0;
-		SECRET = initGame();
-		
-		// Limpar tabuleiro e teclado
-		boardCells.forEach(cell => {
-			cell.textContent = '';
-			cell.removeAttribute('data-letter');
-			cell.classList.remove('correct', 'present', 'absent');
-			cell.classList.add('reset-animation');
-			setTimeout(() => cell.classList.remove('reset-animation'), 500);
-		});
-		keyButtons.forEach(btn => {
-			btn.disabled = false;
-			btn.classList.remove('correct', 'present', 'absent');
-		});
-		document.removeEventListener('keydown', handleKeydown);
-		document.addEventListener('keydown', handleKeydown);
-		const msg = document.querySelector('.message-toast');
-		if (msg) msg.remove();
-		console.debug('[Game Reset] Novo jogo iniciado');
+        resetGame();
 	});
 
 	function cellIndex(row, col) {
@@ -254,16 +314,20 @@ function integrateBoardLogic() {
 
 		console.debug(`[Enter Valid] Row: ${gameState.currentRow}, Guess: ${guess}`);
 
+        let attemptScore = 0;
+
 		// checa e marca cada letra
 		for (let i = 0; i < MAX_COLS; i++) {
 			const ch = guess[i];
 			const cell = boardCells[cellIndex(gameState.currentRow, i)];
 			if (!cell) continue;
 			if (SECRET[i] === ch) {
+                attemptScore += 5;
 				cell.classList.add('correct');
 				const kb = findKeyButton(ch);
 				if (kb) { kb.classList.remove('present', 'absent'); kb.classList.add('correct'); }
 			} else if (SECRET.includes(ch)) {
+                attemptScore += 3;
 				cell.classList.add('present');
 				const kb = findKeyButton(ch);
 				if (kb && !kb.classList.contains('correct')) { kb.classList.remove('absent'); kb.classList.add('present'); }
@@ -273,6 +337,8 @@ function integrateBoardLogic() {
 				if (kb && !kb.classList.contains('correct') && !kb.classList.contains('present')) { kb.classList.add('absent'); }
 			}
 		}
+        
+        currentRoundScore += attemptScore;
 
 		// Verifica se jogador acertou
 		if (guess === SECRET) {
@@ -283,13 +349,21 @@ function integrateBoardLogic() {
 					origin: { y: 0.6 }
 				});
 			}
-			showMessage('🎉 Parabéns! Você acertou!', 'success');
-			setTimeout(() => {
-				alert('🎉 Parabéns! Você acertou!');
-			}, 300);
+            
+            currentRoundScore += 25;
+            totalScore += currentRoundScore;
+            localStorage.setItem('wordleScore', totalScore);
+            scoreDisplay.textContent = `Pts: ${totalScore}`;
+            
+			showMessage(`🎉 Parabéns! +${currentRoundScore} pts!`, 'success');
+            clearInterval(timerInterval);
+            const winModal = document.getElementById('win-modal');
+            winModal.classList.add('open');
 			console.debug(`[Game Won] Acertou em ${gameState.currentRow + 1} tentativa(s)`);
 			// Desabilitar input após vitória
-			keyButtons.forEach(btn => btn.disabled = true);
+			keyButtons.forEach(btn => {
+                if (!btn.classList.contains('reset-btn')) btn.disabled = true;
+            });
 			document.removeEventListener('keydown', handleKeydown);
 			return;
 		}
@@ -302,9 +376,12 @@ function integrateBoardLogic() {
 		// Verifica se atingiu o limite de 6 palpites
 		if (gameState.currentRow >= MAX_ROWS) {
 			showMessage(`Game Over! A palavra era: ${SECRET}`, 'error');
+            clearInterval(timerInterval);
 			console.debug(`[Game Over] Palpites esgotados. Palavra: ${SECRET}`);
 			// Desabilitar input após game over
-			keyButtons.forEach(btn => btn.disabled = true);
+			keyButtons.forEach(btn => {
+                if (!btn.classList.contains('reset-btn')) btn.disabled = true;
+            });
 			document.removeEventListener('keydown', handleKeydown);
 		}
 	}
@@ -354,6 +431,8 @@ function integrateBoardLogic() {
 
 	// Expor funções para debug
 	window._wordle = { SECRET, pickRandomWord, initGame, setCell, clearCell };
+
+    document.addEventListener('keydown', handleKeydown);
 }
 
 // Inicializa automaticamente quando o DOM estiver pronto

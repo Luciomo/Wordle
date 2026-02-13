@@ -332,6 +332,7 @@ main {
 /* ENTER BUTTON - exactly 2 keys wide */
 .keyboard .letter-ENTER {
     min-width: 84px; /* 2 * 42 */
+    background-color: #3a3a3c;
 }
 
 /* ERASE/BACKSPACE BUTTON */
@@ -609,4 +610,27 @@ main {
 
 #win-modal-reset-btn:hover {
     background-color: #5a9a54;
+}
+
+/* Estilos da Pontuação no Modal */
+.modal-score-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(128, 128, 128, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--letter-border);
+}
+
+.modal-score-label {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.modal-score-value {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #6aaa64;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    animation: resetPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

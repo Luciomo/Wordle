@@ -25,6 +25,7 @@ async function loadWords() {
  */
 function pickRandomWord() {
 	const len = WORD_BANK.length;
+    if (len === 0) return "TERMO"; // Evita erro se o banco estiver vazio
 	const idx = Math.floor(Math.random() * len);
 	return WORD_BANK[idx];
 }
@@ -34,6 +35,7 @@ function pickRandomWord() {
  */
 function initGame() {
 	const secret = pickRandomWord();
+    if (!secret) return "TERMO"; // Garante que sempre retorne uma string
 	if (typeof window !== 'undefined') {
 		window.SECRET_WORD = secret.toUpperCase();
 		// debugging non-invasive marker (do not show actual word)
@@ -55,6 +57,7 @@ function integrateBoardLogic() {
     let remainingTime = 180; // 3 minutos
     let totalScore = parseInt(localStorage.getItem('wordleScore') || '0', 10);
     let currentRoundScore = 0;
+    let isGameOver = false;
 
     function startTimer() {
         const timerElement = document.getElementById('timer-container');
@@ -75,11 +78,14 @@ function integrateBoardLogic() {
             
             if (remainingTime <= 0) {
                 clearInterval(timerInterval);
+                isGameOver = true;
                 showMessage(`Game Over! O tempo acabou. A palavra era: ${SECRET}`, 'error');
                 const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
                 keyButtons.forEach(btn => {
                     if (!btn.classList.contains('reset-btn')) btn.disabled = true;
                 });
+                const resetBtnRef = document.querySelector('.reset-btn');
+                if (resetBtnRef) resetBtnRef.disabled = false;
                 document.removeEventListener('keydown', handleKeydown);
             }
         }, 1000);
@@ -89,6 +95,7 @@ function integrateBoardLogic() {
         gameState.currentRow = 0;
         gameState.currentCol = 0;
         currentRoundScore = 0;
+        isGameOver = false;
         
         const boardCells = Array.from(document.querySelectorAll('.board-game .letter'));
         const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
@@ -99,7 +106,7 @@ function integrateBoardLogic() {
         boardCells.forEach(cell => {
             cell.textContent = '';
             cell.removeAttribute('data-letter');
-            cell.classList.remove('correct', 'present', 'absent');
+            cell.classList.remove('correct', 'present', 'absent', 'invalid');
             cell.classList.add('reset-animation');
             setTimeout(() => cell.classList.remove('reset-animation'), 500);
         });
@@ -112,6 +119,9 @@ function integrateBoardLogic() {
         
         const resetBtn = document.querySelector('.reset-btn');
         if (resetBtn) resetBtn.disabled = false;
+        
+        const winModal = document.getElementById('win-modal');
+        if (winModal) winModal.classList.remove('open');
         
         remainingTime = 180;
         startTimer();
@@ -187,10 +197,20 @@ function integrateBoardLogic() {
     const winModal = document.getElementById('win-modal');
     const winModalResetBtn = document.getElementById('win-modal-reset-btn');
 
-    winModalResetBtn.addEventListener('click', () => {
-        winModal.classList.remove('open');
-        resetGame();
-    });
+    if (winModalResetBtn && winModal) {
+        winModalResetBtn.addEventListener('click', () => {
+            winModal.classList.remove('open');
+            resetGame();
+        });
+    }
+    
+    if (winModal) {
+        window.addEventListener('click', (event) => {
+            if (event.target === winModal) {
+                winModal.classList.remove('open');
+            }
+        });
+    }
 
 	const keyboardContainer = document.querySelector('.keyboard');
 	if (keyboardContainer && keyboardContainer.parentNode) {
@@ -198,7 +218,6 @@ function integrateBoardLogic() {
 	}
 
 	resetBtn.addEventListener('click', () => {
-		if (!confirm('Tem certeza que deseja reiniciar o jogo?')) return;
         resetGame();
 	});
 
@@ -238,6 +257,7 @@ function integrateBoardLogic() {
 	}
 
 	function handleLetterInput(letter) {
+        if (isGameOver) return;
 		if (gameState.currentRow >= MAX_ROWS) return;
 		if (gameState.currentCol >= MAX_COLS) {
 			// Atingiu o limite de 5 letras
@@ -250,6 +270,7 @@ function integrateBoardLogic() {
 	}
 
 	function handleBackspace() {
+        if (isGameOver) return;
 		if (gameState.currentCol > 0) {
 			gameState.currentCol--;
 			clearCell(gameState.currentRow, gameState.currentCol);
@@ -298,6 +319,7 @@ function integrateBoardLogic() {
 	}
 
 	function handleEnter() {
+        if (isGameOver) return;
 		if (gameState.currentCol !== MAX_COLS) {
 			// linha incompleta — mostrar mensagem acima do tabuleiro
 			showMessage('Preencha todas as letras', 'error');
@@ -357,15 +379,41 @@ function integrateBoardLogic() {
             
 			showMessage(`🎉 Parabéns! +${currentRoundScore} pts!`, 'success');
             clearInterval(timerInterval);
-            const winModal = document.getElementById('win-modal');
-            winModal.classList.add('open');
-			console.debug(`[Game Won] Acertou em ${gameState.currentRow + 1} tentativa(s)`);
-			// Desabilitar input após vitória
-			keyButtons.forEach(btn => {
-                if (!btn.classList.contains('reset-btn')) btn.disabled = true;
-            });
+            isGameOver = true;
+            
+            // Garante que o botão de reset esteja habilitado
             if (resetBtn) resetBtn.disabled = false;
-			document.removeEventListener('keydown', handleKeydown);
+            const currentResetBtn = document.querySelector('.reset-btn');
+            if (currentResetBtn) currentResetBtn.disabled = false;
+
+            // Prepara e abre o modal de vitória personalizado
+            const winModal = document.getElementById('win-modal');
+            if (winModal) {
+                const content = winModal.querySelector('.modal-content');
+                // Remove pontuação anterior se houver
+                const oldScore = content.querySelector('.modal-score-container');
+                if (oldScore) oldScore.remove();
+
+                // Cria o container de pontuação
+                const scoreContainer = document.createElement('div');
+                scoreContainer.className = 'modal-score-container';
+                scoreContainer.innerHTML = `
+                    <div class="modal-score-label">Pontuação da Rodada</div>
+                    <div class="modal-score-value">+${currentRoundScore}</div>
+                    <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.7">Total Acumulado: ${totalScore}</div>
+                `;
+
+                // Insere antes do botão de resetar dentro do modal
+                const modalResetBtn = document.getElementById('win-modal-reset-btn');
+                if (modalResetBtn) {
+                    content.insertBefore(scoreContainer, modalResetBtn);
+                } else {
+                    content.appendChild(scoreContainer);
+                }
+                
+                winModal.classList.add('open');
+            }
+			console.debug(`[Game Won] Acertou em ${gameState.currentRow + 1} tentativa(s)`);
 			return;
 		}
 
@@ -378,9 +426,11 @@ function integrateBoardLogic() {
 		if (gameState.currentRow >= MAX_ROWS) {
 			showMessage(`Game Over! A palavra era: ${SECRET}`, 'error');
             clearInterval(timerInterval);
+            isGameOver = true;
 			console.debug(`[Game Over] Palpites esgotados. Palavra: ${SECRET}`);
 			// Desabilitar input após game over
-			keyButtons.forEach(btn => {
+            const lossKeys = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
+			lossKeys.forEach(btn => {
                 if (!btn.classList.contains('reset-btn')) btn.disabled = true;
             });
             if (resetBtn) resetBtn.disabled = false;
@@ -433,8 +483,6 @@ function integrateBoardLogic() {
 
 	// Expor funções para debug
 	window._wordle = { SECRET, pickRandomWord, initGame, setCell, clearCell };
-
-    document.addEventListener('keydown', handleKeydown);
 }
 
 // Inicializa automaticamente quando o DOM estiver pronto

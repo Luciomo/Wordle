@@ -83,22 +83,25 @@ body::-webkit-scrollbar-thumb:hover {
     padding: 20px 0;
     background-color: var(--header-bg);
     transition: background-color 0.3s ease;
+    position: relative;
 }
 
 header {
     width: 100%;
-    max-width: 1346px;
 }
 
 .logo {
     display: flex;
-    justify-content: left;
-    align-items: left;
+    align-items: center;
     height: 70px;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .logo img {
-    height: 60px;
+    height: 50px;
     width: auto;
 }
 
@@ -379,6 +382,13 @@ main {
         grid-template-rows: repeat(6, 50px);
         gap: 8px;
     }
+    
+    .logo {
+        position: static;
+        transform: none;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
 
     .keyboard {
         padding: 12px;
@@ -407,7 +417,15 @@ main {
     }
 
     .logo img {
-        height: 50px;
+        height: 30px;
+        width: auto;
+        gap: 8px;
+    
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 10px;
     }
 }
 
@@ -634,3 +652,43 @@ main {
     text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     animation: resetPulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* Estilos do Timer */
+#timer-container {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-color);
+    background-color: var(--letter-bg);
+    padding: 5px 15px;
+    border: 2px solid var(--letter-border);
+    border-radius: 8px;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.timer-warning {
+    color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.timer-fade-out {
+    animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+    to { opacity: 0; }
+
+    to { opacity: 0; }
+
+
+

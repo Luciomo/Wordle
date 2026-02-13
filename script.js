@@ -62,6 +62,10 @@ function integrateBoardLogic() {
     function startTimer() {
         const timerElement = document.getElementById('timer-container');
         if (timerInterval) clearInterval(timerInterval);
+        if (timerElement) {
+            timerElement.classList.remove('timer-warning', 'timer-fade-out');
+            timerElement.style.display = ''; // Garante que o timer apareça ao iniciar/reiniciar
+        }
         
         const updateDisplay = () => {
             const minutes = Math.floor(remainingTime / 60);
@@ -76,9 +80,25 @@ function integrateBoardLogic() {
             remainingTime--;
             updateDisplay();
             
+            if (remainingTime <= 10 && timerElement) {
+                timerElement.classList.add('timer-warning');
+            } else if (timerElement) {
+                timerElement.classList.remove('timer-warning');
+            }
+
             if (remainingTime <= 0) {
                 clearInterval(timerInterval);
                 isGameOver = true;
+                
+                if (timerElement) {
+                    timerElement.classList.remove('timer-warning');
+                    timerElement.classList.add('timer-fade-out');
+                    // Aguarda a animação terminar antes de ocultar o elemento
+                    setTimeout(() => {
+                        if (timerElement.classList.contains('timer-fade-out')) timerElement.style.display = 'none';
+                    }, 1000);
+                }
+
                 showMessage(`Game Over! O tempo acabou. A palavra era: ${SECRET}`, 'error');
                 const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
                 keyButtons.forEach(btn => {
@@ -99,6 +119,9 @@ function integrateBoardLogic() {
         
         const boardCells = Array.from(document.querySelectorAll('.board-game .letter'));
         const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
+        
+        const timerElement = document.getElementById('timer-container');
+        if (timerElement) timerElement.classList.remove('timer-warning');
 
         SECRET = initGame();
         
@@ -131,8 +154,6 @@ function integrateBoardLogic() {
         console.debug('[Game Reset] Novo jogo iniciado');
     }
 
-    startTimer();
-
 	const MAX_ROWS = 6;
 	const MAX_COLS = 5;
 
@@ -142,6 +163,22 @@ function integrateBoardLogic() {
     // Container para os botões
     const controlsContainer = document.createElement('div');
     controlsContainer.className = 'controls-container';
+
+    // Remove timer duplicado do HTML original se existir (o que fica abaixo da logo)
+    const existingTimer = document.getElementById('timer-container');
+    if (existingTimer) existingTimer.remove();
+
+    // Display de Timer
+    const timerDisplay = document.createElement('div');
+    timerDisplay.id = 'timer-container';
+    timerDisplay.textContent = '03:00';
+    
+    const boardGame = document.querySelector('.board-game');
+    if (boardGame && boardGame.parentNode) {
+        boardGame.parentNode.insertBefore(timerDisplay, boardGame);
+    } else {
+        controlsContainer.appendChild(timerDisplay);
+    }
 
     // Display de Pontuação
     const scoreDisplay = document.createElement('div');
@@ -216,6 +253,9 @@ function integrateBoardLogic() {
 	if (keyboardContainer && keyboardContainer.parentNode) {
 		keyboardContainer.parentNode.insertBefore(controlsContainer, keyboardContainer.nextSibling);
 	}
+
+    // Inicia o timer após inserir os elementos no DOM
+    startTimer();
 
 	resetBtn.addEventListener('click', () => {
         resetGame();

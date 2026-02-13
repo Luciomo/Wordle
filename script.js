@@ -364,6 +364,7 @@ function integrateBoardLogic() {
 			keyButtons.forEach(btn => {
                 if (!btn.classList.contains('reset-btn')) btn.disabled = true;
             });
+            if (resetBtn) resetBtn.disabled = false;
 			document.removeEventListener('keydown', handleKeydown);
 			return;
 		}
@@ -382,6 +383,7 @@ function integrateBoardLogic() {
 			keyButtons.forEach(btn => {
                 if (!btn.classList.contains('reset-btn')) btn.disabled = true;
             });
+            if (resetBtn) resetBtn.disabled = false;
 			document.removeEventListener('keydown', handleKeydown);
 		}
 	}

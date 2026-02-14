@@ -59,6 +59,23 @@ function integrateBoardLogic() {
     let currentRoundScore = 0;
     let isGameOver = false;
 
+    function updateBackgroundColor() {
+        const ratio = Math.max(0, remainingTime / 180);
+        const isLight = document.body.classList.contains('light-mode');
+        
+        if (isLight) {
+            // Light Mode: White (255) -> Light Red (255, 200, 200)
+            const val = Math.floor(200 + (55 * ratio));
+            document.body.style.backgroundColor = `rgb(255, ${val}, ${val})`;
+        } else {
+            // Dark Mode: Dark (20, 22, 28) -> Dark Red (60, 10, 10)
+            const r = Math.floor(60 - (40 * ratio));
+            const g = Math.floor(10 + (12 * ratio));
+            const b = Math.floor(10 + (18 * ratio));
+            document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        }
+    }
+
     function startTimer() {
         const timerElement = document.getElementById('timer-container');
         if (timerInterval) clearInterval(timerInterval);
@@ -73,6 +90,7 @@ function integrateBoardLogic() {
             if (timerElement) {
                 timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             }
+            updateBackgroundColor();
         };
         updateDisplay();
 
@@ -100,13 +118,8 @@ function integrateBoardLogic() {
                 }
 
                 showMessage(`Game Over! O tempo acabou. A palavra era: ${SECRET}`, 'error');
-                const keyButtons = Array.from(document.querySelectorAll('.keyboard .letter, .keyboard .action'));
-                keyButtons.forEach(btn => {
-                    if (!btn.classList.contains('reset-btn')) btn.disabled = true;
-                });
                 const resetBtnRef = document.querySelector('.reset-btn');
                 if (resetBtnRef) resetBtnRef.disabled = false;
-                document.removeEventListener('keydown', handleKeydown);
             }
         }, 1000);
     }
@@ -122,6 +135,7 @@ function integrateBoardLogic() {
         
         const timerElement = document.getElementById('timer-container');
         if (timerElement) timerElement.classList.remove('timer-warning');
+        document.body.style.backgroundColor = '';
 
         SECRET = initGame();
         
@@ -202,6 +216,7 @@ function integrateBoardLogic() {
 
 	themeBtn.addEventListener('click', () => {
 		document.body.classList.toggle('light-mode');
+        updateBackgroundColor();
 	});
 
     // Criação do botão de Ajuda (Inline)
@@ -297,7 +312,10 @@ function integrateBoardLogic() {
 	}
 
 	function handleLetterInput(letter) {
-        if (isGameOver) return;
+        if (isGameOver) {
+            showCustomAlert('O jogo acabou! Por favor, clique em "Jogar novamente".');
+            return;
+        }
 		if (gameState.currentRow >= MAX_ROWS) return;
 		if (gameState.currentCol >= MAX_COLS) {
 			// Atingiu o limite de 5 letras
@@ -310,7 +328,10 @@ function integrateBoardLogic() {
 	}
 
 	function handleBackspace() {
-        if (isGameOver) return;
+        if (isGameOver) {
+            showCustomAlert('O jogo acabou! Por favor, clique em "Jogar novamente".');
+            return;
+        }
 		if (gameState.currentCol > 0) {
 			gameState.currentCol--;
 			clearCell(gameState.currentRow, gameState.currentCol);
@@ -358,8 +379,43 @@ function integrateBoardLogic() {
 		setTimeout(() => { msg.remove(); }, 5000);
 	}
 
+    function showCustomAlert(message) {
+        let modal = document.getElementById('custom-alert-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'custom-alert-modal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <p id="custom-alert-message"></p>
+                    <button id="custom-alert-ok-btn" class="reset-btn">OK</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const closeBtn = modal.querySelector('.close-modal');
+            const okBtn = modal.querySelector('#custom-alert-ok-btn');
+            
+            const closeModal = () => modal.classList.remove('open');
+            
+            closeBtn.addEventListener('click', closeModal);
+            okBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) closeModal();
+            });
+        }
+        
+        const msgElement = modal.querySelector('#custom-alert-message');
+        if (msgElement) msgElement.textContent = message;
+        modal.classList.add('open');
+    }
+
 	function handleEnter() {
-        if (isGameOver) return;
+        if (isGameOver) {
+            showCustomAlert('O jogo acabou! Por favor, clique em "Jogar novamente".');
+            return;
+        }
 		if (gameState.currentCol !== MAX_COLS) {
 			// linha incompleta — mostrar mensagem acima do tabuleiro
 			showMessage('Preencha todas as letras', 'error');

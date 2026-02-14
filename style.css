@@ -103,6 +103,7 @@ header {
 .logo img {
     height: 50px;
     width: auto;
+    animation: logoFadeIn 1.2s ease-out;
 }
 
 /* MAIN CONTAINER */
@@ -686,6 +687,39 @@ main {
     from { opacity: 1; }
     to { opacity: 0; }
 }
-    to { opacity: 0; }
 
-    to { opacity: 0; }
+@keyframes logoFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Alert Modal */
+#custom-alert-modal .modal-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#custom-alert-message {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+/* Seção de Pontuação no Modal de Ajuda */
+.score-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--letter-border);
+    text-align: left;
+}
+
+.score-section li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}

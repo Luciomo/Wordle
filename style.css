@@ -475,7 +475,7 @@ main {
     }
 
     .logo img {
-        height: 40px;
+        height: 24px;
     }
 }
 
@@ -689,6 +689,3 @@ main {
     to { opacity: 0; }
 
     to { opacity: 0; }
-
-
-

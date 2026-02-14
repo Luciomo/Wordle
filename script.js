@@ -230,6 +230,24 @@ function integrateBoardLogic() {
     const modal = document.getElementById('help-modal');
     const closeBtn = document.querySelector('.close-modal');
 
+    if (modal) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent && !modalContent.querySelector('.score-section')) {
+            const scoreSection = document.createElement('div');
+            scoreSection.className = 'score-section';
+            scoreSection.innerHTML = `
+                <h3>Pontuação</h3>
+				<br>
+                <ul>
+                    <li><div class="legend-box present"></div> Posição incorreta (Amarelo): <strong>3 pontos</strong></li>
+                    <li><div class="legend-box correct"></div> Posição correta (Verde): <strong>5 pontos</strong></li>
+                    <li>🎉 Acertar a palavra secreta: <strong>+25 pontos</strong></li>
+                </ul>
+            `;
+            modalContent.appendChild(scoreSection);
+        }
+    }
+
     if (modal && closeBtn) {
         helpBtn.addEventListener('click', () => {
             modal.classList.add('open');
